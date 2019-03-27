@@ -41,9 +41,30 @@ ZIPCODER_REDLINE = {'02108':{'NA': 0.9 ,'C': 0.5, 'B': 0.5},
                     '02467':{'A':0.9,'B':0.1}
                     }
 
-NEIGHBORHOODS = { 'MISSIONHILL' : [], #these need the zipcodes associated
-                  'JAMAICAPLAIN' : [],
-                  'CHINATOWN' : [],
+NEIGHBORHOODS = { 'ALLSTON':'02134',
+		 'BACKBAY':'02116',
+		 'BAYVILLAGE':'02116',
+		 'BEACONHILL':'02108',
+		 'BRIGHTON':'02135',
+		 'CHARLESTOWN':'02129',
+		 'CHINATOWNLEATHERDISTRICT':'02111',
+		 'DORCHESTER':['02121','02122','02124','02125'],
+		 'DOWNTOWN':'02201',
+		 'EASTBOSTON':'02128',
+		 'LONGWOOD':'02115'
+		 'FENWAYKENMORE':'02215', #the city of boston doesn't recognize longwood as it's own neighborhood and includes 02115 in fenway kenmore
+		 'HYDEPARK':'02136',
+		 'JAMAICAPLAIN' : '02130',
+		 'MATTAPAN':'02126',
+		 'MIDDORCHESTER':['02121','02122','02124','02125'],
+		 'MISSIONHILL' : ['02120','02115'],
+		 'NORTHEND':'02113',
+		 'ROSLINDALE':'02131',
+		 'ROXBURY':'02119',
+		 'SOUTHBOSTON':'02127',
+		 'SOUTHEND':'02118',
+		 'WESTEND':'02114',
+		 'WESTROXBURY':'02132'
                 }
 
 def load_data():

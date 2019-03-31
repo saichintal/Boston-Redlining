@@ -45,61 +45,112 @@ ZIPCODER_REDLINE = {'02108': {'NA': 0.9, 'C': 0.5, 'B': 0.5},
                     '02467': {'A': 0.9, 'B': 0.1}
                     }
 
-NEIGHBORHOODS = {'ALLSTON': '02134',
-                 'BACKBAY': '02116',
-                 'BAYVILLAGE': '02116',
-                 'BEACONHILL': '02108',
-                 'BRIGHTON': '02135',
-                 'CHARLESTOWN': '02129',
-                 'CHINATOWNLEATHERDISTRICT': '02111',
-                 'DORCHESTER': ['02121', '02122', '02124', '02125'],
-                 'DOWNTOWN': '02201',
-                 'EASTBOSTON': '02128',
-                 'LONGWOOD': '02115',
-                 # the city of boston doesn't recognize longwood as it's own neighborhood and includes 02115 in fenway kenmore
-                 'FENWAYKENMORE': '02215',
-                 'HYDEPARK': '02136',
-                 'JAMAICAPLAIN': '02130',
-                 'MATTAPAN': '02126',
-                 'MIDDORCHESTER': ['02121', '02122', '02124', '02125'],
-                 'MISSIONHILL': ['02120', '02115'],
-                 'NORTHEND': '02113',
-                 'ROSLINDALE': '02131',
-                 'ROXBURY': '02119',
-                 'SOUTHBOSTON': '02127',
-                 'SOUTHEND': '02118',
-                 'WESTEND': '02114',
-                 'WESTROXBURY': '02132'
-                 }
+NEIGHBORHOODS = {'Allston': {'zipcode': ['02134'], 'population': 28821},
+                'Back Bay': {'zipcode': ['02116'], 'population': 21844},
+                'Beaconhill': {'zipcode': ['02108'], 'population': 9943},
+                'Brighton': {'zipcode': ['02135'], 'population': 45977},
+                'Charlestwon':{'zipcode': ['02129'], 'population': 16439},
+                'Chinatown':{'zipcode': ['02111'], 'population': 7510},
+                'Dorchester':{'zipcode': ['02121', '02122', '02124', '02125'], 'population': 88333},
+                'Downtown': {'zipcode': ['02201'], 'population': 1976},
+                'East Boston': {'zipcode': ['02118'], 'population': 40508},
+                'Longwood': {'zipcode': ['02115'], 'population': 1754},
+                # the city of boston doesn't recognize longwood as its own neighborhood and includes 02115 in fenway kenmore
+                'Fenway': {'zipcode': ['02215'], 'population': 21174},
+                'Hyde Park': {'zipcode': ['02136'], 'population': 31845},
+                'Jamaica Plain': {'zipcode': ['02130'], 'population': 41262},
+                'Mattapan': {'zipcode': ['02126'], 'population': 34391},
+                'Mission Hill': {'zipcode': ['02120'], 'population': 13929},
+                'North End': {'zipcode': ['02113'], 'population': 10605},
+                'Roslindale':{'zipcode': ['02131'], 'population': 35945},
+                'Roxbury': {'zipcode': ['02119'], 'population': 52534},
+                'South Boston': {'zipcode': ['02127'], 'population': 11096},
+                'South End': {'zipcode': ['02118'], 'population': 33638},
+                'West End': {'zipcode': ['02114'], 'population': 5330},
+                'West Roxbury': {'zipcode': ['02132'], 'population': 30442}
+                }
 
 
-def get_average_graduation_rate_for_zipcde(df):
-    zipcode_avg_graduationrate = {}
+def get_neighborhood_by_zipcode(zipcode): 
+    for neighborhood, value in NEIGHBORHOODS.items():
+        results = list(map(int, value['zipcode'])) # converts list of string to list of ints 
+        if zipcode in results: # checks if zipcode is part of the neigborhood
+            return neighborhood  
+
+
+
+def get_POC2_number_for_area(df2, NEIGHBORHOODS):
+    area_POC2_number = {}
+
+    #iterates through the list
+    for i in df2.index:
+        area = df2['Name'][i]
+        num_of_people = df2['POC2'][i]
+        # checks if we have seen this area before
+        if area in area_POC2_number:
+            curr_siz = area_POC2_number[area]['population']
+            area_POC2_number[area] = {'population': curr_siz + num_of_people}
+        else:
+            #sets the POC2 population for that area
+            area_POC2_number[area] = {'population': num_of_people}
+
+    print(area_POC2_number)
+    # fiding the % of POC in each neighborhood
+    for neighborhood, value in NEIGHBORHOODS.items():
+        neighborhood_pop = value['population']
+       
+        if neighborhood in area_POC2_number:
+            POC_pop = area_POC2_number[neighborhood]['population']
+            print(POC_pop)
+            area_POC2_number[neighborhood]['percentage'] = (POC_pop / neighborhood_pop) * 100
+            
+
+    return area_POC2_number
+        
+
+def get_average_graduation_rate(df):
+    neighborhood_avg_graduationrate = {}
 
     # iterates through public high school 
     for i in df.index:
         zipcode = df['ZIPCODE'][i]
+        neighborhood = get_neighborhood_by_zipcode(zipcode)
         graduation_rate = df['Graduation_Rate'][i]
-        # checks if we have seen this zipcode before 
-        if zipcode in zipcode_avg_graduationrate:
-            curr_avg = zipcode_avg_graduationrate[zipcode]['rate']
-            curr_size = zipcode_avg_graduationrate[zipcode]['size']
-            # calculates average graduation rate for the zipcode 
-            zipcode_avg_graduationrate[zipcode] = {'rate': (curr_avg + graduation_rate) / (curr_size + 1),
+        # checks if we have seen this neighborhood before 
+        if neighborhood in neighborhood_avg_graduationrate:
+            curr_avg = neighborhood_avg_graduationrate[neighborhood]['rate']
+            curr_size = neighborhood_avg_graduationrate[neighborhood]['size']
+            # calculates average graduation rate for the neighborhood 
+            neighborhood_avg_graduationrate[neighborhood] = {'rate': (curr_avg + graduation_rate) / (curr_size + 1),
                                                    'size': curr_size + 1}
         else:
-            # sets the graduation rate for that zipcode 
-            zipcode_avg_graduationrate[zipcode] = {
+            # sets the graduation rate for that neighborhood 
+            neighborhood_avg_graduationrate[neighborhood] = {
                 'rate': graduation_rate, 'size': 1}
 
-    return zipcode_avg_graduationrate
+    return neighborhood_avg_graduationrate
+
+
+def extractOnlyNumbers(data): 
+    nums = [] 
+    for neighborhood, value in data.items(): 
+        if 'rate' in value.keys(): 
+            nums.append(value['rate'])
+        elif 'percent' in value.keys(): 
+            nums.append(value['percent'])
+        elif 'house' in value.keys(): 
+            nums.append(value['house'])
+
+    return nums
 
 
 def main():
     df = pd.read_excel(HIGHSCHOOL_DATASET, sheet_name='Public_Schools')
 
-    zipcode_avg_graduationrate = get_average_graduation_rate_for_zipcde(df)
-    print(zipcode_avg_graduationrate)
+    neighborhood_avg_graduationrate = get_average_graduation_rate(df)
+
+
+    print(neighborhood_avg_graduationrate)
 
 
 main()

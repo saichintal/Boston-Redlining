@@ -122,26 +122,19 @@ def get_average_grad_rate(df):
             curr_size = neighborhood_avg_grad_rate[neighborhood]['size']
             # calculates average graduation rate for the neighborhood 
             neighborhood_avg_grad_rate[neighborhood] = {'rate': (curr_avg + graduation_rate) / (curr_size + 1),
-                                                   'size': curr_size + 1}
+                                                   'size': curr_size + 1, 'code': NEIGHBORHOODS[neighborhood]['code']}
         else:
             # sets the graduation rate for that neighborhood 
             neighborhood_avg_grad_rate[neighborhood] = {
-                'rate': graduation_rate, 'size': 1}
+                'rate': graduation_rate, 'size': 1, 'code': NEIGHBORHOODS[neighborhood]['code']}
 
     return neighborhood_avg_grad_rate
 
-
-def extractOnlyNumbers(data): 
-    nums = [] 
+def get_avg_value_for_each_code(data): 
+    avg_code_value = {'A' : {'avg' : 0, 'size': 0}, 'B' : {'avg' : 0, 'size': 0}, 
+                      'C' : {'avg' : 0, 'size': 0}, 'D' : {'avg' : 0, 'size': 0}}
+    
     for neighborhood, value in data.items(): 
-        if 'rate' in value.keys(): 
-            nums.append(value['rate'])
-        elif 'percent' in value.keys(): 
-            nums.append(value['percent'])
-        elif 'house' in value.keys(): 
-            nums.append(value['house'])
-
-    return nums
 
 
 def main():

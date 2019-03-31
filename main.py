@@ -4,13 +4,14 @@ from pandas import ExcelWriter
 from pandas import ExcelFile
 
 HIGHSCHOOL_DATASET = 'Public_Highschool_Dataset.xlsx'
+POC2_DATASET = 'Boston_Social_Vulnerability.xlsx'
 
 CODE_TRANSLATOR = {'D': "Dangerous",
                    'C': 'Definitely Declining',
                    'B': 'Still Desireable',
                    'A': 'Best'}
 
-ZIPCODER_REDLINE = {'02108': {'NA': 0.9, 'C': 0.5, 'B': 0.5},
+ZIPCODER_REDLINE = {'02108': {'NA': 0.9, 'C': 0.05, 'B': 0.05},
                     '02109': {'NA': 1},
                     '02110': {'NA': 1},
                     '02111': {'D': 0.5, 'NA': 0.5},
@@ -45,7 +46,7 @@ ZIPCODER_REDLINE = {'02108': {'NA': 0.9, 'C': 0.5, 'B': 0.5},
                     '02467': {'A': 0.9, 'B': 0.1}
                     }
 
-NEIGHBORHOODS = {'ALLSTON': '02134',
+NEIGHBORHOODS = {'ALLSTON': '02134', 
                  'BACKBAY': '02116',
                  'BAYVILLAGE': '02116',
                  'BEACONHILL': '02108',
@@ -72,6 +73,24 @@ NEIGHBORHOODS = {'ALLSTON': '02134',
                  'WESTROXBURY': '02132'
                  }
 
+def get_POC2_number_for_area(df2):
+    area_POC2_number = {}
+
+    #iterates through the list
+    for i in df2.index:
+        area = df2['Name'][i]
+        num_of_people = df2['POC2'][i]
+        # checks if we have seen this area before
+        if area in area_POC2_number:
+            curr_siz = area_POC2_number[area]['population']
+            area_POC2_number[area] = {'population': curr_siz + num_of_people}
+        else:
+            #sets the POC2 population for that area
+            area_POC2_number[area] = {'population': num_of_people}
+
+    return area_POC2_number
+        
+    
 
 def get_average_graduation_rate_for_zipcde(df):
     zipcode_avg_graduationrate = {}
@@ -96,10 +115,15 @@ def get_average_graduation_rate_for_zipcde(df):
 
 
 def main():
+
     df = pd.read_excel(HIGHSCHOOL_DATASET, sheet_name='Public_Schools')
+    df2 = pd.read_excel(POC2_DATASET, sheet_name='Climate_Ready_Boston_Social_Vul')
+
+    POC2_number_for_area = get_POC2_number_for_area(df2)
+    print(POC2_number_for_area)
 
     zipcode_avg_graduationrate = get_average_graduation_rate_for_zipcde(df)
-    print(zipcode_avg_graduationrate)
+    #print(zipcode_avg_graduationrate)
 
 
 main()

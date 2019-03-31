@@ -4,13 +4,14 @@ from pandas import ExcelWriter
 from pandas import ExcelFile
 
 HIGHSCHOOL_DATASET = 'Public_Highschool_Dataset.xlsx'
+POC2_DATASET = 'Boston_Social_Vulnerability.xlsx'
 
 CODE_TRANSLATOR = {'D': "Dangerous",
                    'C': 'Definitely Declining',
                    'B': 'Still Desireable',
                    'A': 'Best'}
 
-ZIPCODER_REDLINE = {'02108': {'NA': 0.9, 'C': 0.5, 'B': 0.5},
+ZIPCODER_REDLINE = {'02108': {'NA': 0.9, 'C': 0.05, 'B': 0.05},
                     '02109': {'NA': 1},
                     '02110': {'NA': 1},
                     '02111': {'D': 0.5, 'NA': 0.5},
@@ -45,7 +46,7 @@ ZIPCODER_REDLINE = {'02108': {'NA': 0.9, 'C': 0.5, 'B': 0.5},
                     '02467': {'A': 0.9, 'B': 0.1}
                     }
 
-NEIGHBORHOODS = {'Allston': {'zipcode': ['02134'], 'population': 28821},
+NEIGHBORHOODS = {'Allston': {'zipcode': ['02134'], 'population': 28821, 'code': 'B'},
                 'Back Bay': {'zipcode': ['02116'], 'population': 21844},
                 'Beaconhill': {'zipcode': ['02108'], 'population': 9943},
                 'Brighton': {'zipcode': ['02135'], 'population': 45977},
@@ -94,7 +95,6 @@ def get_POC2_number_for_area(df2, NEIGHBORHOODS):
             #sets the POC2 population for that area
             area_POC2_number[area] = {'population': num_of_people}
 
-    print(area_POC2_number)
     # fiding the % of POC in each neighborhood
     for neighborhood, value in NEIGHBORHOODS.items():
         neighborhood_pop = value['population']
@@ -108,8 +108,8 @@ def get_POC2_number_for_area(df2, NEIGHBORHOODS):
     return area_POC2_number
         
 
-def get_average_graduation_rate(df):
-    neighborhood_avg_graduationrate = {}
+def get_average_grad_rate(df):
+    neighborhood_avg_grad_rate = {}
 
     # iterates through public high school 
     for i in df.index:
@@ -117,18 +117,18 @@ def get_average_graduation_rate(df):
         neighborhood = get_neighborhood_by_zipcode(zipcode)
         graduation_rate = df['Graduation_Rate'][i]
         # checks if we have seen this neighborhood before 
-        if neighborhood in neighborhood_avg_graduationrate:
-            curr_avg = neighborhood_avg_graduationrate[neighborhood]['rate']
-            curr_size = neighborhood_avg_graduationrate[neighborhood]['size']
+        if neighborhood in neighborhood_avg_grad_rate:
+            curr_avg = neighborhood_avg_grad_rate[neighborhood]['rate']
+            curr_size = neighborhood_avg_grad_rate[neighborhood]['size']
             # calculates average graduation rate for the neighborhood 
-            neighborhood_avg_graduationrate[neighborhood] = {'rate': (curr_avg + graduation_rate) / (curr_size + 1),
+            neighborhood_avg_grad_rate[neighborhood] = {'rate': (curr_avg + graduation_rate) / (curr_size + 1),
                                                    'size': curr_size + 1}
         else:
             # sets the graduation rate for that neighborhood 
-            neighborhood_avg_graduationrate[neighborhood] = {
+            neighborhood_avg_grad_rate[neighborhood] = {
                 'rate': graduation_rate, 'size': 1}
 
-    return neighborhood_avg_graduationrate
+    return neighborhood_avg_grad_rate
 
 
 def extractOnlyNumbers(data): 
@@ -147,7 +147,7 @@ def extractOnlyNumbers(data):
 def main():
     df = pd.read_excel(HIGHSCHOOL_DATASET, sheet_name='Public_Schools')
 
-    neighborhood_avg_graduationrate = get_average_graduation_rate(df)
+    neighborhood_avg_graduationrate = get_average_grad_rate(df)
 
 
     print(neighborhood_avg_graduationrate)

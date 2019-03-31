@@ -46,6 +46,33 @@ ZIPCODER_REDLINE = {'02108': {'NA': 0.9, 'C': 0.05, 'B': 0.05},
                     '02467': {'A': 0.9, 'B': 0.1}
                     }
 
+NEIGHBORHOODS = {'ALLSTON': {'02134':'D'},
+                 'BACKBAY': {'02116':'D'},
+                 'BAYVILLAGE': {'02116':'D'},
+                 'BEACONHILL': {'02108':'NA'},
+                 'BRIGHTON': {'02135':'C'},
+                 'CHARLESTOWN': {'02129':'D'},
+                 'CHINATOWNLEATHERDISTRICT': {'02111':'D'},
+                 'DORCHESTER': {'02121':'C', '02122':'D', '02124':'C', '02125':'C'},
+                 'DOWNTOWN': {'02210':'NA'},
+                 'EASTBOSTON': {'02128':'B'},
+                 'LONGWOOD': {'02115':'C'},
+# the city of boston doesn't recognize longwood as it's own neighborhood and includes 02115 in fenway kenmore
+                 'FENWAYKENMORE': {'02215':'D'},
+                 'HYDEPARK': {'02136':'C'},
+                 'JAMAICAPLAIN': {'02130':'A'},
+                 'MATTAPAN': {'02126':'C'},
+                 'MISSIONHILL': {'02120':'D', '02115':'D'},
+                 'NORTHEND': {'02113':'D'},
+                 'ROSLINDALE': {'02131':'C'},
+                 'ROXBURY': {'02119':'D'},
+                 'SOUTHBOSTON': {'02127':'C'},
+                 'SOUTHEND': {'02118':'D'},
+                 'WESTEND': {'02114':'D'},
+                 'CHESTNUTHILL':{'02467':'A'}
+                 'WESTROXBURY': {'02132':'C'}
+                 }
+'''
 NEIGHBORHOODS = {'ALLSTON': '02134', 
                  'BACKBAY': '02116',
                  'BAYVILLAGE': '02116',
@@ -72,7 +99,7 @@ NEIGHBORHOODS = {'ALLSTON': '02134',
                  'WESTEND': '02114',
                  'WESTROXBURY': '02132'
                  }
-
+'''
 def get_POC2_number_for_area(df2):
     area_POC2_number = {}
 

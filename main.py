@@ -15,7 +15,6 @@ NEIGHBORHOODS = {'Allston': {'zipcode': ['02134'], 'population': 28821, 'code': 
                 'Back Bay': {'zipcode': ['02116'], 'population': 21844,'code': 'D'},
                 'Beaconhill': {'zipcode': ['02108'], 'population': 9943,'code': 'NA'},
                 'Brighton': {'zipcode': ['02135'], 'population': 45977,'code': 'C'},
-                'Charlestwon':{'zipcode': ['02129'], 'population': 16439,'code': 'D'},
                 'Chinatown':{'zipcode': ['02111'], 'population': 7510,'code': 'D'},
                 'Dorchester':{'zipcode': ['02121', '02122', '02124', '02125'], 'population': 88333,'code': 'C'},
                 'Downtown': {'zipcode': ['02201'], 'population': 1976,'code': 'NA'},
@@ -44,32 +43,31 @@ def get_neighborhood_by_zipcode(zipcode):
 
 
 
-def get_POC2_number_for_area(df2, NEIGHBORHOODS):
-    area_POC2_number = {}
+def get_avg_poverty_rate(df):
+    area_poverty_number = {}
 
     #iterates through the list
-    for i in df2.index:
-        area = df2['Name'][i]
-        num_of_people = df2['POC2'][i]
+    for i in df.index:
+        area = df['Name'][i]
+        num_of_low_income_people = df['Low_to_No'][i]
         # checks if we have seen this area before
-        if area in area_POC2_number:
-            curr_siz = area_POC2_number[area]['population']
-            area_POC2_number[area] = {'population': curr_siz + num_of_people}
+        if area in area_poverty_number:
+            curr_siz = area_poverty_number[area]['population']
+            area_poverty_number[area] = {'population': curr_siz + num_of_low_income_people}
         else:
-            #sets the POC2 population for that area
-            area_POC2_number[area] = {'population': num_of_people}
+            #sets the poverty population for that area
+            area_poverty_number[area] = {'population': num_of_low_income_people}
 
-    # fiding the % of POC in each neighborhood
+    # fiding the % of poverty in each neighborhood
     for neighborhood, value in NEIGHBORHOODS.items():
         neighborhood_pop = value['population']
-       
-        if neighborhood in area_POC2_number:
-            POC_pop = area_POC2_number[neighborhood]['population']
-            print(POC_pop)
-            area_POC2_number[neighborhood]['percentage'] = (POC_pop / neighborhood_pop) * 100
+        if neighborhood in area_poverty_number:
+            pov_pop = area_poverty_number[neighborhood]['population']
+            area_poverty_number[neighborhood]['rate'] = (pov_pop / neighborhood_pop) * 100
+            area_poverty_number[neighborhood]['code'] = NEIGHBORHOODS[neighborhood]['code']
             
 
-    return area_POC2_number
+    return area_poverty_number
         
 
 def get_average_grad_rate(df):
@@ -85,29 +83,46 @@ def get_average_grad_rate(df):
             curr_avg = neighborhood_avg_grad_rate[neighborhood]['rate']
             curr_size = neighborhood_avg_grad_rate[neighborhood]['size']
             # calculates average graduation rate for the neighborhood 
-            neighborhood_avg_grad_rate[neighborhood] = {'rate': (curr_avg + graduation_rate) / (curr_size + 1),
+            neighborhood_avg_grad_rate[neighborhood] = {'rate': ((curr_avg * curr_size) + graduation_rate) / (curr_size + 1),
                                                    'size': curr_size + 1, 'code': NEIGHBORHOODS[neighborhood]['code']}
         else:
             # sets the graduation rate for that neighborhood 
             neighborhood_avg_grad_rate[neighborhood] = {
                 'rate': graduation_rate, 'size': 1, 'code': NEIGHBORHOODS[neighborhood]['code']}
-
+        
     return neighborhood_avg_grad_rate
 
 def get_avg_value_for_each_code(data): 
     avg_code_value = {'A' : {'avg' : 0, 'size': 0}, 'B' : {'avg' : 0, 'size': 0}, 
                       'C' : {'avg' : 0, 'size': 0}, 'D' : {'avg' : 0, 'size': 0}}
     
+    # iterates thorugh each neighborhood 
     for neighborhood, value in data.items(): 
-
+        code = value['code']
+        rate = value['rate']
+        curr_avg = avg_code_value[code]['avg'] 
+        curr_size = avg_code_value[code]['size'] 
+        # calculates the current running average and then the new average 
+        avg_code_value[code]['avg'] =  ((curr_avg *  curr_size) + rate) / (curr_size + 1)
+        # increments the running size by 1 
+        avg_code_value[code]['size'] =  avg_code_value[code]['size'] + 1 
+    
+    return avg_code_value
 
 def main():
     df = pd.read_excel(HIGHSCHOOL_DATASET, sheet_name='Public_Schools')
 
-    neighborhood_avg_graduationrate = get_average_grad_rate(df)
+    neighborhood_avg_graduation_rate = get_average_grad_rate(df)
+    print(neighborhood_avg_graduation_rate)
 
+    avg_graduation_for_code = get_avg_value_for_each_code(neighborhood_avg_graduation_rate)
+    print(avg_graduation_for_code)
 
-    print(neighborhood_avg_graduationrate)
+    df2 = pd.read_excel(POC2_DATASET, sheet_name='Climate_Ready_Boston_Social_Vul')
+    neighborhood_avg_poverty_rate = get_avg_poverty_rate(df2)
+    print(neighborhood_avg_poverty_rate) 
+    avg_poverty_for_code = get_avg_value_for_each_code(neighborhood_avg_poverty_rate)
+    print(avg_poverty_for_code)
 
 
 main()

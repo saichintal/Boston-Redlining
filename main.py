@@ -151,11 +151,10 @@ def ANOVA( averages_by_neighborhood):
     '''
     params: averages by neighborhood and by code as Dictionaries
     returns: 
-    DOES: determination of statistical analysis through ANOVA method
-        this method assumes that the rates are distributed normally and
+    DOES: Statistical analysis through ANOVA method
+        this method assumes that the populations are distributed normally and
         that each group has the same standard deviation.
-        These may not be reasonable assumptions but they were ones that allowed
-        us to use the statsitical methods we knew how to implement.
+        We have no reason to believe this is an unreasonable assumption.
     '''
     
     A = [ ]
@@ -187,12 +186,6 @@ def ANOVA( averages_by_neighborhood):
                 D.append(averages_by_neighborhood[key]["rate"])
                 additions -= 1
 
-    #prints the lists so that they can be visually checked            
-    #print("A:",A,'\n',"B:",B,'\n',"C:",C,'\n',"D:",D)
-
-    #calculates N the total number of observations in the data
-    n_population = len(A) + len(B) + len(C) + len(D)
-    print("The n value for this test is: ", n_population)
 
     #used the stats package to run an f one way test also known as anova
     anova = stats.f_oneway(A,B,C,D)
@@ -244,6 +237,7 @@ def averages_bar_chart( neighborhood_averages, y_value_title, chart_title):
     #displays bar chart
     plt.show()
 
+    return
 
 
 def neighborhood_bar_chart(neighborhood_data, y_value_title, chart_title):
@@ -271,16 +265,16 @@ def neighborhood_bar_chart(neighborhood_data, y_value_title, chart_title):
 
     plt.show()
 
-    
+    return
 
 def sort_lists( rates, neighborhoods):
     '''
     Params: list of numbers, neighborhoods as lists
     Returns list of numbers, neighborhoods as a tupple of lists
     Does: Sorts the rates from largest to smallest to make a more visually
-    appealing graph. Used only in neighborhood_bar_chart. It is pretty
-    inefficient but this is my (Benjamin Novak's) first programming course
-    with more time we would improve this function to take less time
+    appealing graph. Used only in neighborhood_bar_chart. We later realized it
+    could be done with a premade function but didn't want to delete the hard
+    work.
     '''
     ordered = True
     while ordered:
@@ -297,31 +291,25 @@ def sort_lists( rates, neighborhoods):
 
 
 def main():
+
+    '''reads in the data'''
+    #Graduation Rates
     df = pd.read_excel(HIGHSCHOOL_DATASET, sheet_name='Public_Schools')
-
     neighborhood_avg_graduation_rate = get_average_grad_rate(df)
-    #print(neighborhood_avg_graduation_rate, '\n\n\n')
-
     avg_graduation_for_code = get_avg_value_for_each_code(neighborhood_avg_graduation_rate)
-    #print(avg_graduation_for_code)
-    
+
+    #Poverty Rates
     df2 = pd.read_excel(POC2_DATASET, sheet_name='Climate_Ready_Boston_Social_Vul')
     neighborhood_avg_poverty_rate = get_avg_poverty_rate(df2)
-    #print(neighborhood_avg_poverty_rate,"\n\n\n") 
-
     avg_poverty_for_code = get_avg_value_for_each_code(neighborhood_avg_poverty_rate)
-    #print(avg_poverty_for_code)
 
+    #Property Values
     df = pd.read_excel(PROPERTY_DATASET, sheet_name='Sheet1')
-    
-    neighborhood_avg_property_value = get_average_property_val(df)
-    #print(neighborhood_avg_property_value,"DONE")
-    
+    neighborhood_avg_property_value = get_average_property_val(df)    
     avg_property_value_for_code = get_avg_value_for_each_code(neighborhood_avg_property_value)
-    print(avg_property_value_for_code)
     
-    #statistical analysis
-
+    
+    '''statistical analysis'''
     #Graduation Rates
     print("\n Results of ANOVA for graduation rates:\n")
     ANOVA( neighborhood_avg_graduation_rate )
@@ -335,8 +323,7 @@ def main():
     ANOVA( neighborhood_avg_property_value)
 
     
-    #visualizations
-    
+    '''visualizations'''
     #average graduation rate by code
     averages_bar_chart(avg_graduation_for_code, "graduation rate",
                        "Graduation Rate by Code")
@@ -346,7 +333,6 @@ def main():
     #average property values by code
     averages_bar_chart( avg_property_value_for_code,"property value",
                        "Average Property Value by Code")
-    
     #graduation rates by neighborhood
     neighborhood_bar_chart( neighborhood_avg_graduation_rate, "Graduation Rate",
                            'Graduation Rates by Neighborhood')
